@@ -18,6 +18,39 @@
         
         <div class="main-content">
             <div class="control-panel">
+                <div class="section ai-section">
+                    <h2>AI Character Generation</h2>
+                    <div class="input-group">
+                        <label for="character-description">Character Description:</label>
+                        <textarea id="character-description" rows="3" placeholder="Describe your character (e.g. 'A steampunk robot with a top hat and monocle')"></textarea>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label>Character Style:</label>
+                        <div class="style-options">
+                            <label class="radio-label">
+                                <input type="radio" name="ai-style" value="cartoon" checked>
+                                <span>Cartoon</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="ai-style" value="pixel">
+                                <span>Pixel Art</span>
+                            </label>
+                            <label class="radio-label">
+                                <input type="radio" name="ai-style" value="realistic">
+                                <span>Realistic</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button id="generate-reference" class="primary-button">Generate Reference Image</button>
+                    
+                    <div id="reference-container" class="reference-container" style="display: none;">
+                        <img id="reference-image" alt="AI Generated Reference">
+                        <button id="use-reference" class="secondary-button">Use as Reference</button>
+                    </div>
+                </div>
+                
                 <div class="section">
                     <h2>Character Configuration</h2>
                     <div class="input-group">

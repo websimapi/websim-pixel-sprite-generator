@@ -20,6 +20,10 @@ class PixelSpriteGenerator {
         this.animationType = 'idle';
         this.frameCount = 4;
         
+        // AI Reference Image
+        this.referenceImageURL = null;
+        this.aiGeneratedColors = null;
+        
         // Pixel size mappings
         this.pixelSizes = {
             'minimal': 16,
@@ -93,6 +97,205 @@ class PixelSpriteGenerator {
                 this.renderCurrentFrame();
             }
         });
+        
+        // AI Reference Image Generation
+        document.getElementById('generate-reference').addEventListener('click', () => this.generateReferenceImage());
+        document.getElementById('use-reference').addEventListener('click', () => this.useReferenceImage());
+    }
+    
+    async generateReferenceImage() {
+        const descriptionElement = document.getElementById('character-description');
+        const description = descriptionElement.value.trim();
+        
+        if (!description) {
+            alert('Please enter a character description');
+            return;
+        }
+        
+        // Get selected style
+        const styleRadios = document.getElementsByName('ai-style');
+        let selectedStyle = 'cartoon';
+        for (const radio of styleRadios) {
+            if (radio.checked) {
+                selectedStyle = radio.value;
+                break;
+            }
+        }
+        
+        // Show loading state
+        const generateButton = document.getElementById('generate-reference');
+        generateButton.disabled = true;
+        generateButton.textContent = 'Generating...';  
+        generateButton.classList.add('loading');
+        
+        try {
+            // Create a prompt that specifies the character and style
+            let prompt = '';
+            
+            switch (selectedStyle) {
+                case 'pixel':
+                    prompt = `A pixel art character design of ${description}. Single character centered, facing forward, full body visible, clean pixel art style with sharp edges and limited color palette.`;
+                    break;
+                case 'realistic':
+                    prompt = `A realistic character design of ${description}. Single character centered, facing forward, full body visible, detailed shading and textures.`;
+                    break;
+                case 'cartoon':
+                default:
+                    prompt = `A cartoon character design of ${description}. Single character centered, facing forward, full body visible, clean lines and simple colors.`;
+                    break;
+            }
+            
+            // Generate the image using websim AI
+            const result = await websim.imageGen({
+                prompt: prompt,
+                aspect_ratio: "1:1"
+            });
+            
+            // Display the generated image
+            const referenceContainer = document.getElementById('reference-container');
+            const referenceImage = document.getElementById('reference-image');
+            
+            // Set crossOrigin to "anonymous" to allow reading pixel data if server supports CORS
+            referenceImage.crossOrigin = "Anonymous";
+
+            referenceImage.onload = () => {
+                // Extract colors from the image now that it's loaded.
+                // This might still fail if the server doesn't send CORS headers, so we wrap it in a try-catch.
+                try {
+                    this.extractColorsFromReference(referenceImage);
+                } catch (e) {
+                    console.error("Failed to extract colors from reference image:", e);
+                    if (e.name === 'SecurityError') {
+                        alert('Could not analyze reference image due to cross-origin policy. AI-generated palette will not be available.');
+                    } else {
+                        alert('An error occurred while analyzing the reference image.');
+                    }
+                }
+            };
+
+            referenceImage.onerror = () => {
+                // This will likely fire if CORS is not supported by the image server.
+                alert('Could not load or analyze reference image due to cross-origin policy. AI-generated palette will not be available.');
+                // We can still display the image, but color extraction will be skipped.
+                referenceImage.onload = null; // Prevent future onload events
+            };
+
+            referenceImage.src = result.url; // Set src AFTER onload and crossOrigin
+            referenceContainer.style.display = 'block';
+            
+            // Store the reference image URL for later use
+            this.referenceImageURL = result.url;
+            
+        } catch (error) {
+            console.error('Error generating image:', error);
+            alert('Failed to generate image. Please try again.');
+        } finally {
+            // Reset button state
+            generateButton.disabled = false;
+            generateButton.textContent = 'Generate Reference Image';
+            generateButton.classList.remove('loading');
+        }
+    }
+    
+    extractColorsFromReference(image) {
+        // Create a temporary canvas to analyze the image
+        const tempCanvas = document.createElement('canvas');
+        const tempContext = tempCanvas.getContext('2d');
+        tempCanvas.width = image.width;
+        tempCanvas.height = image.height;
+        
+        // Draw the image to the canvas
+        tempContext.drawImage(image, 0, 0, image.width, image.height);
+        
+        // Get image data
+        const imageData = tempContext.getImageData(0, 0, image.width, image.height);
+        const pixels = imageData.data;
+        
+        // Analyze colors (basic implementation - could be improved with clustering algorithms)
+        const colorMap = {};
+        for (let i = 0; i < pixels.length; i += 4) {
+            const r = pixels[i];
+            const g = pixels[i + 1];
+            const b = pixels[i + 2];
+            
+            // Skip transparent pixels
+            if (pixels[i + 3] < 128) continue;
+            
+            // Quantize colors to reduce similar shades
+            const quantizedR = Math.floor(r / 16) * 16;
+            const quantizedG = Math.floor(g / 16) * 16;
+            const quantizedB = Math.floor(b / 16) * 16;
+            
+            const colorKey = `${quantizedR},${quantizedG},${quantizedB}`;
+            if (colorMap[colorKey]) {
+                colorMap[colorKey]++;
+            } else {
+                colorMap[colorKey] = 1;
+            }
+        }
+        
+        // Convert to array of [color, count] and sort by count
+        const colorCounts = Object.entries(colorMap).map(([color, count]) => {
+            const [r, g, b] = color.split(',').map(Number);
+            return [`rgb(${r},${g},${b})`, count];
+        });
+        
+        colorCounts.sort((a, b) => b[1] - a[1]);
+        
+        // Extract the most common colors (up to 16)
+        this.aiGeneratedColors = colorCounts.slice(0, 16).map(item => item[0]);
+        
+        console.log('Extracted colors:', this.aiGeneratedColors);
+    }
+    
+    useReferenceImage() {
+        if (!this.referenceImageURL) {
+            alert('Please generate a reference image first');
+            return;
+        }
+        
+        // Determine the character type based on the image
+        const description = document.getElementById('character-description').value.toLowerCase();
+        
+        if (description.includes('robot') || description.includes('mech') || description.includes('android')) {
+            document.getElementById('character-type').value = 'robot';
+            this.characterType = 'robot';
+        } else if (description.includes('wizard') || description.includes('elf') || description.includes('fantasy') || 
+                  description.includes('knight') || description.includes('dragon') || description.includes('warrior')) {
+            document.getElementById('character-type').value = 'fantasy';
+            this.characterType = 'fantasy';
+        } else if (description.includes('animal') || description.includes('cat') || description.includes('dog') || 
+                  description.includes('creature') || description.includes('beast') || description.includes('monster')) {
+            document.getElementById('character-type').value = 'animal';
+            this.characterType = 'animal';
+        } else {
+            document.getElementById('character-type').value = 'human';
+            this.characterType = 'human';
+        }
+        
+        // If we extracted colors, create a custom palette
+        if (this.aiGeneratedColors && this.aiGeneratedColors.length > 0) {
+            // Add the AI-generated palette to our palette options
+            this.palettes['ai-generated'] = this.aiGeneratedColors;
+            
+            // Create or update the option in the select element
+            const paletteSelect = document.getElementById('color-palette');
+            let aiOption = paletteSelect.querySelector('option[value="ai-generated"]');
+            
+            if (!aiOption) {
+                aiOption = document.createElement('option');
+                aiOption.value = 'ai-generated';
+                aiOption.textContent = 'AI Generated Colors';
+                paletteSelect.appendChild(aiOption);
+            }
+            
+            // Select the AI-generated palette
+            paletteSelect.value = 'ai-generated';
+            this.colorPalette = 'ai-generated';
+        }
+        
+        // Automatically generate the sprite
+        this.generateSprite();
     }
     
     generateStandardPalette(count) {
@@ -158,6 +361,18 @@ class PixelSpriteGenerator {
         
         // Clear with transparent background
         spriteCtx.clearRect(0, 0, pixelSize, pixelSize);
+        
+        // If we have a reference image, draw that first (downscaled and faded)
+        if (this.referenceImageURL) {
+            const img = document.getElementById('reference-image');
+            
+            if (img && img.complete && img.naturalHeight !== 0) {
+                // Draw reference as a faded background guide
+                spriteCtx.globalAlpha = 0.2;
+                spriteCtx.drawImage(img, 0, 0, pixelSize, pixelSize);
+                spriteCtx.globalAlpha = 1.0;
+            }
+        }
         
         // Generate the sprite based on character and animation type
         switch (this.characterType) {

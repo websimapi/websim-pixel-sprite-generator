@@ -86,6 +86,42 @@ header h1 {
     padding-bottom: 8px;
 }
 
+/* AI Section Styles */
+.ai-section {
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 15px;
+    background-color: rgba(100, 181, 246, 0.05);
+}
+
+.reference-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#reference-image {
+    max-width: 100%;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    border: 1px solid #444;
+}
+
+.style-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.radio-label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.radio-label input {
+    margin-right: 5px;
+}
+
 /* Form Controls */
 .input-group {
     margin-bottom: 15px;
@@ -97,7 +133,7 @@ label {
     font-weight: 500;
 }
 
-select, input[type="range"] {
+select, input[type="range"], textarea {
     width: 100%;
     padding: 8px 12px;
     border-radius: 4px;
@@ -107,7 +143,13 @@ select, input[type="range"] {
     font-size: 0.9rem;
 }
 
-select:focus {
+textarea {
+    resize: vertical;
+    min-height: 60px;
+    font-family: inherit;
+}
+
+select:focus, textarea:focus {
     border-color: #64b5f6;
     outline: none;
 }
@@ -223,6 +265,36 @@ button:disabled {
     text-align: center;
     color: #aaa;
     font-size: 0.9rem;
+}
+
+/* Loading Indicator */
+.loading {
+    position: relative;
+}
+
+.loading::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 4px;
+}
+
+.loading::before {
+    content: "Generating...";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 10;
+    color: white;
+    font-weight: bold;
 }
 
 /* Responsive adjustments */
