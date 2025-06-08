@@ -1,0 +1,241 @@
+/* Global Styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+}
+
+.app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #333;
+}
+
+.logo-container {
+    margin-bottom: 15px;
+}
+
+.logo {
+    max-width: 300px;
+    height: auto;
+    image-rendering: pixelated;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #ff7043;
+}
+
+.tagline {
+    font-size: 1.1rem;
+    color: #aaa;
+}
+
+/* Main Content Layout */
+.main-content {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.control-panel {
+    flex: 1;
+    min-width: 300px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.preview-panel {
+    flex: 2;
+    min-width: 350px;
+    background-color: #1e1e1e;
+    border-radius: 8px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Sections */
+.section {
+    margin-bottom: 25px;
+}
+
+.section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 15px;
+    color: #64b5f6;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+}
+
+/* Form Controls */
+.input-group {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+select, input[type="range"] {
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 4px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    color: #ddd;
+    font-size: 0.9rem;
+}
+
+select:focus {
+    border-color: #64b5f6;
+    outline: none;
+}
+
+input[type="range"] {
+    height: 10px;
+    -webkit-appearance: none;
+    background: #2a2a2a;
+    border-radius: 4px;
+    padding: 0;
+    margin-top: 10px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: #64b5f6;
+    cursor: pointer;
+}
+
+/* Buttons */
+button {
+    padding: 10px 16px;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.primary-button {
+    background-color: #ff7043;
+    color: white;
+    font-weight: bold;
+    width: 100%;
+    margin-bottom: 10px;
+}
+
+.primary-button:hover {
+    background-color: #f4511e;
+}
+
+.secondary-button {
+    background-color: #2a2a2a;
+    color: #ddd;
+    border: 1px solid #444;
+    width: 100%;
+}
+
+.secondary-button:hover:not([disabled]) {
+    background-color: #333;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Canvas and Animation Controls */
+.canvas-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 15px;
+    background-color: #2a2a2a;
+    border-radius: 4px;
+    border: 1px solid #444;
+    overflow: hidden;
+}
+
+#sprite-canvas {
+    background-image:
+        linear-gradient(45deg, #222 25%, transparent 25%),
+        linear-gradient(-45deg, #222 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #222 75%),
+        linear-gradient(-45deg, transparent 75%, #222 75%);
+    background-size: 20px 20px;
+    background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+    image-rendering: pixelated;
+}
+
+.animation-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 15px;
+}
+
+#play-pause {
+    background-color: #64b5f6;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+#play-pause:hover {
+    background-color: #42a5f5;
+}
+
+#frame-slider {
+    flex-grow: 1;
+}
+
+.sprite-info {
+    text-align: center;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+    
+    .preview-panel {
+        order: -1;
+    }
+    
+    .logo {
+        max-width: 200px;
+    }
+}
